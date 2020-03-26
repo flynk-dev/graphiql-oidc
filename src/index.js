@@ -5,25 +5,21 @@ import { OidcProvider } from 'redux-oidc';
 import rootReducer from './reducers'
 import './index.css';
 import App from './App'
-import * as serviceWorker from './serviceWorker';
 import { createUserManager } from 'redux-oidc';
 import { loadUser } from 'redux-oidc';
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import CallbackPage from './callback';
 import { createStore, applyMiddleware, compose } from "redux";
 import { createHashHistory } from 'history';
-import {
-  syncHistoryWithStore,
-  routerMiddleware
-} from "react-router-redux";
+import { routerMiddleware } from "react-router-redux";
 
 const settings = {
   client_id: 'graphiql',
-  redirect_uri: `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}/callback`,
+  redirect_uri: `${window.location.href}callback`,
   response_type: 'token id_token',
   scope: 'openid',
   authority: 'http://localhost:5556/dex',
-  silent_redirect_uri: `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}/silent_renew.html`,
+  silent_redirect_uri: `${window.location.href}silent_renew.html`,
   automaticSilentRenew: true,
   filterProtocolClaims: true,
   loadUserInfo: false //,
@@ -34,23 +30,14 @@ const settings = {
 
 export const userManager = createUserManager(settings);
 
-const loggerMiddleware = store => next => action => {
-  console.log("Action type:", action.type);
-  console.log("Action payload:", action.payload);
-  console.log("State before:", store.getState());
-  //next(action);
-  //console.log("State after:", store.getState());
-};
-
 const initialState = {};
 
 const createStoreWithMiddleware = compose(
-  applyMiddleware(loggerMiddleware, routerMiddleware(createHashHistory))
+  applyMiddleware(routerMiddleware(createHashHistory))
 )(createStore);
 
-const store = createStoreWithMiddleware(rootReducer, initialState);
+const store = createStoreWithMiddleware(rootReducer, initialState, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
-//const store = createStore(rootReducer)
 loadUser(store, userManager);
 
 render(
@@ -64,8 +51,3 @@ render(
   </Provider>,
   document.getElementById('root')
 )
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
