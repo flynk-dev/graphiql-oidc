@@ -4,45 +4,44 @@ import { useSelector } from 'react-redux'
 import 'graphiql/graphiql.css';
 import { userManager } from './index';
 
-function graphQLFetcher(graphQLParams) {
+const graphQLFetcher = graphQLParams => {
   return userManager.getUser().then(usr => {
-  return fetch('http://spot.local:8080/graphql', {
-    method: "post",
-    headers: { 
-      "Content-Type": "application/json", 
-      'Authorization': 'Bearer ' + usr.access_token 
-    },
-    body: JSON.stringify(graphQLParams)
-  }).then(response => {
-    if (response.status === 401 || response.status === 0) {
-      throw new Error('log eerst maar eens in');
-    }
-    return response.json();
-  }).catch(error => {
-    console.log("FOUT,", error);
+    return fetch('http://spot.local:8080/graphql', {
+      method: "post",
+      headers: { 
+        "Content-Type": "application/json", 
+        'Authorization': 'Bearer ' + usr.access_token 
+      },
+      credentials: 'include',
+      body: JSON.stringify(graphQLParams)
+    }).then(response => {
+      if (response.status === 401 || response.status === 0) {
+        throw new Error('log eerst maar eens in');
+      }
+      return response.json();
+    })
   });
-})
 }
 
 const handleClick = () => {
-  return userManager.getUser().then(usr => {
-    if (usr === null) {
-      userManager.signinRedirect();
-    } else {
-      userManager.signoutRedirect();
-    }
-  });
+    userManager.signinRedirect();
+}
+
+const Login = () => {
+  return (
+    <div className={'login'}>
+      <button className={'cupid-green'} onClick={handleClick}>{'Login'}</button>
+    </div>
+  )
 }
 
 const App = () => {
-  const user = useSelector(state => state.oidc.user);
-  const isAuthenticated = user !== null;
-  if (user === null) {
-    return (
-    <div className="App">
-      <button onClick={handleClick}>{isAuthenticated ? 'Logout' : 'Login'}</button>
-    </div>
-    )
+  const oidc = useSelector(state => state.oidc);
+  if (oidc.isLoadingUser) {
+    return (<h1>loading user...</h1>)
+  }
+  if (oidc.user === null) {
+    return (<Login />)
   }
   return (
       <GraphiQL fetcher={graphQLFetcher} />
