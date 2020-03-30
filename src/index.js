@@ -49,5 +49,5 @@ render(
     </Router>
     </OidcProvider>
   </Provider>,
-  document.getElementById('root')
+  document.getElementById('graphiql')
 )
