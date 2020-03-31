@@ -2,11 +2,11 @@ import React from 'react';
 import GraphiQL from 'graphiql';
 import { useSelector } from 'react-redux'
 import 'graphiql/graphiql.css';
-import { userManager } from './index';
+import { userManager, gqlUrl } from './index';
 
 const graphQLFetcher = graphQLParams => {
-  return userManager.getUser().then(usr => {
-    return fetch('http://spot.local:8080/graphql', {
+  return userManager().getUser().then(usr => {
+    return fetch(gqlUrl(), {
       method: "post",
       headers: { 
         "Content-Type": "application/json", 
@@ -24,7 +24,7 @@ const graphQLFetcher = graphQLParams => {
 }
 
 const handleClick = () => {
-    userManager.signinRedirect();
+    userManager().signinRedirect();
 }
 
 const Login = () => {

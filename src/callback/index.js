@@ -5,7 +5,7 @@ import { userManager } from '../index';
 const CallbackPage = () => {
   return (
     <CallbackComponent
-      userManager={userManager}
+      userManager={userManager()}
       successCallback={() => {
         window.location.href = '/';
       }}
